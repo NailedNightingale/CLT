@@ -74,6 +74,7 @@ class CLT:
         self.k6 = k6
         self.k9 = k9
         self.k12 = k12
+        self.char = 70  # TODO: Replace this with an appropriate variable initilaliser in the constructor
 
         self.total_depth = sum(layer_thickness_list)
         self.elastic_NA_par = self.get_elastic_NA_par()
@@ -86,6 +87,23 @@ class CLT:
         self.smia_list = self.SMIACalculations.smia_list_calc(self.total_depth, self.panel_width, self.layers)
         self.phi = 0.85
         self.layer_areas = []
+
+    def get_fire_layer_thickness_list(self):
+        # Need to generate a new list of thicknesses to account for the
+        remaining_char = self.char
+        fire_layer_thickness_list = []
+        for thickness in self.layer_thickness_list:
+            if remaining_char > thickness:
+                thickness = 0
+                remaining_char -= thickness
+            elif 0 < remaining_char < thickness:
+                thickness -= abs(remaining_char)
+                remaining_char = 0
+            else:
+                pass
+            fire_layer_thickness_list.append(thickness)
+        return fire_layer_thickness_list
+
 
     def get_elastic_NA_par(self):
         """Function calculates the location of the elastic neutral axis from first principles"""
@@ -117,6 +135,12 @@ class CLT:
         # Divided by the sum of the axial stiffnesses
         elastic_NA = sum_EAy / sum_EA
         return elastic_NA
+
+
+    def get_elastic_NA_par_fire(self):
+        """Function calculates the location of the elastic neutral axis in the fire case from first principles"""
+
+
 
     def gen_clt_layers(self):
         """Generates the layers of the CLT panel."""
